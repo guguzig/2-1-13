@@ -1,5 +1,6 @@
 import org.example.TipService;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
@@ -17,6 +18,7 @@ public class TipServiceTest {
         tipService = new TipService();
     }
 
+    @DisplayName("Test rounding tips")
     @ParameterizedTest(name = "Test rounding tips: amount={0}, expected={1}")
     @CsvSource({
             "500, 550",   // 10% tip when amount < 1000
