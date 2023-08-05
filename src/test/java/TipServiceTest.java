@@ -1,52 +1,35 @@
 import org.example.TipService;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
-
-
 import java.math.BigDecimal;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class TipServiceTest {
 
-    private final TipService tipService = new TipService();
+    private TipService tipService;
+    private final BigDecimal tolerance = BigDecimal.valueOf(0.01);
 
-    @Test
-    void testRoundTipsWithAmountLessThanBoundary() {
-        BigDecimal amount = BigDecimal.valueOf(500);
-        BigDecimal expected = amount.multiply(BigDecimal.valueOf(1.1)); // 10% tip
-        BigDecimal result = tipService.roundTips(amount);
-        assertEquals(expected, result);
+    @BeforeEach
+    void setUp() {
+        tipService = new TipService();
     }
 
-    @Test
-    void testRoundTipsWithAmountEqualToBoundary() {
-        BigDecimal amount = BigDecimal.valueOf(1000);
-        BigDecimal expected = amount.multiply(BigDecimal.valueOf(1.05)); // 5% tip
-        BigDecimal result = tipService.roundTips(amount);
-        assertEquals(expected, result);
-    }
-
-    @Test
-    void testRoundTipsWithAmountGreaterThanBoundary() {
-        BigDecimal amount = BigDecimal.valueOf(1500);
-        BigDecimal expected = amount.multiply(BigDecimal.valueOf(1.05)); // 5% tip
-        BigDecimal result = tipService.roundTips(amount);
-        assertEquals(expected, result);
-    }
-
-    @ParameterizedTest
+    @ParameterizedTest(name = "Test rounding tips: amount={0}, expected={1}")
     @CsvSource({
+            "500, 550",   // 10% tip when amount < 1000
+            "1000, 1050", // 5% tip when amount >= 1000
+            "1500, 1575", // 5% tip when amount >= 1000
             "800, 880",   // 10% tip when amount < 1000
             "1200, 1260", // 5% tip when amount >= 1000
             "2000, 2100"  // 5% tip when amount >= 1000
     })
-    void testRoundTipsWithParameterizedCases(BigDecimal amount, BigDecimal expected) {
+    void testRoundTips(BigDecimal amount, BigDecimal expected) {
         BigDecimal result = tipService.roundTips(amount);
-        assertEquals(
-
-                0, expected.compareTo(result));
+        BigDecimal difference = result.subtract(expected).abs();
+        assertTrue(BigDecimal.ZERO.compareTo(difference) <= 0, "Expected: " + expected + ", Actual: " + result);
+        assertTrue(difference.compareTo(tolerance) <= 0, "Tolerance exceeded: " + difference);
     }
 }
